@@ -47,6 +47,7 @@ private:
   std::unique_ptr<DiskWriter> diskWriter_;
   int64_t totalLength_;
   bool readOnly_;
+
 public:
   AbstractSingleDiskAdaptor();
 
@@ -63,14 +64,15 @@ public:
   virtual void writeData(const unsigned char* data, size_t len,
                          int64_t offset) CXX11_OVERRIDE;
 
-  virtual ssize_t readData(unsigned char* data, size_t len, int64_t offset)
-    CXX11_OVERRIDE;
+  virtual ssize_t readData(unsigned char* data, size_t len,
+                           int64_t offset) CXX11_OVERRIDE;
 
   virtual ssize_t readDataDropCache(unsigned char* data, size_t len,
-                                    int64_t offset)
-    CXX11_OVERRIDE;
+                                    int64_t offset) CXX11_OVERRIDE;
 
   virtual void writeCache(const WrDiskCacheEntry* entry) CXX11_OVERRIDE;
+
+  virtual void flushOSBuffers() CXX11_OVERRIDE;
 
   virtual bool fileExists() CXX11_OVERRIDE;
 
@@ -78,8 +80,8 @@ public:
 
   virtual void truncate(int64_t length) CXX11_OVERRIDE;
 
-  virtual std::unique_ptr<FileAllocationIterator> fileAllocationIterator()
-    CXX11_OVERRIDE;
+  virtual std::unique_ptr<FileAllocationIterator>
+  fileAllocationIterator() CXX11_OVERRIDE;
 
   // Make sure that DiskWriter is set before calling this function.
   virtual void enableReadOnly() CXX11_OVERRIDE;
@@ -104,10 +106,7 @@ public:
 
   void setTotalLength(int64_t totalLength);
 
-  int64_t getTotalLength() const
-  {
-    return totalLength_;
-  }
+  int64_t getTotalLength() const { return totalLength_; }
 };
 
 } // namespace aria2

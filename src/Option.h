@@ -50,6 +50,7 @@ private:
   std::vector<std::string> table_;
   std::vector<unsigned char> use_;
   std::shared_ptr<Option> parent_;
+
 public:
   Option();
   ~Option();
@@ -84,16 +85,15 @@ public:
   void clear();
   // Returns the option value table of this object. It does not
   // contain option values in parent_ and so forth.
-  const std::vector<std::string>& getTable() const
-  {
-    return table_;
-  }
+  const std::vector<std::string>& getTable() const { return table_; }
   // Copy option values defined in option to this option. parent_ is
   // left unmodified for this object.
   void merge(const Option& option);
   // Sets parent Option object for this object.
   void setParent(const std::shared_ptr<Option>& parent);
   const std::shared_ptr<Option>& getParent() const;
+  // Returns true if there is no option stored.
+  bool emptyLocal() const;
 };
 
 } // namespace aria2

@@ -2,7 +2,7 @@
 /*
  * aria2 - The high speed download utility
  *
- * Copyright (C) 2014 Nils Maier
+ * Copyright (C) 2016 Tatsuhiro Tsujikawa
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,65 +32,19 @@
  * files in the program, then also delete it here.
  */
 /* copyright --> */
+#ifndef LIBSSL_COMPAT_H
+#define LIBSSL_COMPAT_H
 
-#define _GNUSOURCE
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <linux/random.h>
-#include <errno.h>
-#include <linux/errno.h>
-#include <stdint.h>
-#include <stdio.h>
+#include <openssl/opensslv.h>
 
-#include "config.h"
-#include "getrandom_linux.h"
+#if defined(LIBRESSL_VERSION_NUMBER)
+#  define LIBRESSL_IN_USE 1
+#else // !defined(LIBRESSL_VERSION_NUMBER)
+#  define LIBRESSL_IN_USE 0
+#endif // !defined(LIBRESSL_VERSION_NUMBER)
 
-int getrandom_linux(void *buf, size_t buflen) {
-  int rv = 0;
-  uint8_t* p = buf;
+#define OPENSSL_101_API                                                        \
+  ((!LIBRESSL_IN_USE && OPENSSL_VERSION_NUMBER >= 0x1010000fL) ||              \
+   (LIBRESSL_IN_USE && LIBRESSL_VERSION_NUMBER >= 0x20700000L))
 
-  /* Loop while we did not fully retrieve what the user asked for.
-   * This may happen in particular when a call was EINTRupted.
-   */
-  while (buflen) {
-    int read;
-#ifdef HAVE_GETRANDOM
-    /* libc already has support */
-    read = getrandom(p, buflen, 0);
-#else // HAVE_GETRANDOM
-    /* libc has no support, make the syscall ourselves */
-    read = syscall(SYS_getrandom, p, buflen, 0);
-    /* Some libc impl. might mess -ERESTART up */
-    if (read == -EINTR || read == -ERESTART) {
-      /* ERESTART, like EINTR, should restart the call, later, so handle both
-       * the same way.
-       */
-      errno = EINTR;
-      read = -1;
-    }
-    /* Some other non-interrupted error happened, put error code into errno and
-     * switch read to -1 (return value).
-     */
-    if (read < -1) {
-      errno = -read;
-      read = -1;
-    }
-#endif // HAVE_GETRANDOM
-    if (read < 0) {
-      if (errno == EINTR) {
-        /* Restart call */
-        continue;
-      }
-      /* Call failed, return -1, errno should be set up correctly at this
-       * point.
-       */
-      return -1;
-    }
-    /* We got some more randomness */
-    p += read;
-    rv += read;
-    buflen -= read;
-  }
-
-  return rv;
-}
+#endif // LIBSSL_COMPAT_H

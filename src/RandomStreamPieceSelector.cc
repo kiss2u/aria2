@@ -2,7 +2,7 @@
 /*
  * aria2 - The high speed download utility
  *
- * Copyright (C) 2013 Tatsuhiro Tsujikawa
+ * Copyright (C) 2015 Tatsuhiro Tsujikawa
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,17 +32,43 @@
  * files in the program, then also delete it here.
  */
 /* copyright --> */
-#include <errno.h>
+#include "RandomStreamPieceSelector.h"
+#include "BitfieldMan.h"
+#include "SimpleRandomizer.h"
 
-/*
- * Since Android ndk r9, __set_errno is deprecated. It is now defined
- * as inline function in errno.h. The syscall assembly calls
- * __set_errno, but since libc.so does not export it, the link
- * fails. To workaround this, replace all occurrences of __set_errno
- * with a2_set_errno and define it here.
- */
-int a2_set_errno(int n)
+namespace aria2 {
+
+RandomStreamPieceSelector::RandomStreamPieceSelector(BitfieldMan* bitfieldMan)
+    : bitfieldMan_(bitfieldMan)
 {
-  errno = n;
-  return -1;
 }
+
+RandomStreamPieceSelector::~RandomStreamPieceSelector() = default;
+
+bool RandomStreamPieceSelector::select(size_t& index, size_t minSplitSize,
+                                       const unsigned char* ignoreBitfield,
+                                       size_t length)
+{
+  size_t start = SimpleRandomizer::getInstance()->getRandomNumber(
+      bitfieldMan_->countBlock());
+
+  auto rv = bitfieldMan_->getInorderMissingUnusedIndex(
+      index, start, bitfieldMan_->countBlock(), minSplitSize, ignoreBitfield,
+      length);
+  if (rv) {
+    return true;
+  }
+  rv = bitfieldMan_->getInorderMissingUnusedIndex(index, 0, start, minSplitSize,
+                                                  ignoreBitfield, length);
+  if (rv) {
+    return true;
+  }
+  // Fall back to inorder search because randomized search may fail
+  // because of |minSplitSize| constraint.
+  return bitfieldMan_->getInorderMissingUnusedIndex(index, minSplitSize,
+                                                    ignoreBitfield, length);
+}
+
+void RandomStreamPieceSelector::onBitfieldInit() {}
+
+} // namespace aria2

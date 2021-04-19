@@ -2,7 +2,7 @@
 /*
  * aria2 - The high speed download utility
  *
- * Copyright (C) 2014 Nils Maier
+ * Copyright (C) 2015 Tatsuhiro Tsujikawa
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,18 +32,30 @@
  * files in the program, then also delete it here.
  */
 /* copyright --> */
+#ifndef D_RANDOM_STREAM_PIECE_SELECTOR_H
+#define D_RANDOM_STREAM_PIECE_SELECTOR_H
 
-#ifndef D_GETRANDOM_LINUX_H
-#define D_GETRANDOM_LINUX_H
+#include "StreamPieceSelector.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace aria2 {
 
-int getrandom_linux(void *buf, size_t buflen);
+class BitfieldMan;
 
-#ifdef __cplusplus
-}
-#endif
+class RandomStreamPieceSelector : public StreamPieceSelector {
+public:
+  RandomStreamPieceSelector(BitfieldMan* bitfieldMan);
+  virtual ~RandomStreamPieceSelector();
 
-#endif /* D_GETRANDOM_LINUX_H */
+  virtual bool select(size_t& index, size_t minSplitSize,
+                      const unsigned char* ignoreBitfield,
+                      size_t length) CXX11_OVERRIDE;
+
+  virtual void onBitfieldInit() CXX11_OVERRIDE;
+
+private:
+  BitfieldMan* bitfieldMan_;
+};
+
+} // namespace aria2
+
+#endif // D_RANDOM_STREAM_PIECE_SELECTOR_H

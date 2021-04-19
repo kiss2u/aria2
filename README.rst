@@ -1,7 +1,5 @@
 aria2 - The ultra fast download utility
 =======================================
-:Author:    Tatsuhiro Tsujikawa
-:Email:     t-tujikawa_at_users_dot_sourceforge_dot_net
 
 Disclaimer
 ----------
@@ -20,12 +18,12 @@ downloaded from HTTP(S)/FTP/SFTP is uploaded to the BitTorrent
 swarm. Using Metalink's chunk checksums, aria2 automatically validates
 chunks of data while downloading a file like BitTorrent.
 
-The project page is located at http://aria2.sourceforge.net/.
+The project page is located at https://aria2.github.io/.
 
 See `aria2 Online Manual
-<http://aria2.sourceforge.net/manual/en/html/>`_ (`Russian translation
-<http://aria2.sourceforge.net/manual/ru/html/>`_, `Portuguese
-translation <http://aria2.sourceforge.net/manual/pt/html/>`_) to learn
+<https://aria2.github.io/manual/en/html/>`_ (`Russian translation
+<https://aria2.github.io/manual/ru/html/>`_, `Portuguese
+translation <https://aria2.github.io/manual/pt/html/>`_) to learn
 how to use aria2.
 
 Features
@@ -78,15 +76,31 @@ Here is a list of features:
 * IPv6 support with Happy Eyeballs
 * Disk cache to reduce disk activity
 
+
+Versioning and release schedule
+-------------------------------
+
+We use 3 numbers for aria2 version: MAJOR.MINOR.PATCH.  We will ship
+MINOR update on 15th of every month.  We may skip a release if we have
+no changes since the last release.  The feature and documentation
+freeze happens 10 days before the release day (5th day of the month)
+for translation teams.  We will raise an issue about the upcoming
+release around that day.
+
+We may release PATCH releases between regular releases if we have
+security issues.
+
+MAJOR version will stay at 1 for the time being.
+
 How to get source code
 ----------------------
 
 We maintain the source code at Github:
-https://github.com/tatsuhiro-t/aria2
+https://github.com/aria2/aria2
 
 To get the latest source code, run following command::
 
-    $ git clone https://github.com/tatsuhiro-t/aria2.git
+    $ git clone https://github.com/aria2/aria2.git
 
 This will create aria2 directory in your current directory and source
 files are stored there.
@@ -155,11 +169,11 @@ JSON-RPC over WebSocket  libnettle or libgcrypt or OpenSSL
 A user can have one of the following configurations for SSL and crypto
 libraries:
 
-* libgcrypt
-* libnettle
 * OpenSSL
 * GnuTLS + libgcrypt
 * GnuTLS + libnettle
+* Apple TLS (OSX only)
+* Windows TLS (Windows only)
 
 You can disable BitTorrent and Metalink support by providing
 ``--disable-bittorrent`` and ``--disable-metalink`` to the configure
@@ -167,7 +181,7 @@ script respectively.
 
 In order to enable async DNS support, you need c-ares.
 
-* c-ares: http://daniel.haxx.se/projects/c-ares/
+* c-ares: http://c-ares.haxx.se/
 
 How to build
 ------------
@@ -225,10 +239,10 @@ necessary to build the program::
 
     $ autoreconf -i
 
-Also you need `Sphinx <http://sphinx.pocoo.org/>`_ to build man page.
+Also you need `Sphinx <http://sphinx-doc.org/>`_ to build man page.
 
 If you are building aria2 for Mac OS X, take a look at
-the make-release-os.mk GNU Make makefile.
+the makerelease-osx.mk GNU Make makefile.
 
 The quickest way to build aria2 is first run configure script::
 
@@ -291,7 +305,7 @@ Cross-compiling Windows binary
 ------------------------------
 
 In this section, we describe how to build a Windows binary using a
-mingw-w64 (http://mingw-w64.sourceforge.net/) cross-compiler on Debian
+mingw-w64 (http://mingw-w64.org/doku.php) cross-compiler on Debian
 Linux. The MinGW (http://www.mingw.org/) may not be able to build
 aria2.
 
@@ -345,7 +359,7 @@ Cross-compiling Android binary
 In this section, we describe how to build Android binary using Android
 NDK cross-compiler on Debian Linux.
 
-At the time of this writing, android-ndk-r9 should compile aria2
+At the time of this writing, Android NDK r20 should compile aria2
 without errors.
 
 ``android-config`` script is a configure script wrapper for Android
@@ -362,48 +376,28 @@ When building the above libraries, make sure that disable shared
 library and enable only static library. We are going to link those
 libraries statically.
 
-We use zlib which comes with Android NDK, so we don't have to build it
-by ourselves.
+``android-config`` assumes that ``$ANDROID_HOME`` and ``$NDK``
+environment variables are defined.
 
-``android-config`` assumes the existence of ``$ANDROID_HOME``
-environment variable which must fulfill the following conditions:
+We currently use Android NDK r20.  ``$NDK`` should point to the
+directory to Anroid NDK.  The build tools will be found under
+``$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/``.
 
-* Android NDK toolchain is installed under
-  ``$ANDROID_HOME/toolchain``.  Refer to "4/ Invoking the compiler
-  (the easy way):" section in Android NDK
-  ``docs/STANDALONE-TOOLCHAIN.html`` to install custom toolchain.
+All the dependent libraries must be installed under
+``$ANDROID_HOME/usr/local``.
 
-  For example, to install toolchain under ``$ANDROID_HOME/toolchain``,
-  do this::
-
-      $NDK/build/tools/make-standalone-toolchain.sh \
-        --install-dir=$ANDROID_HOME/toolchain \
-        --toolchain=arm-linux-androideabi-4.9 \
-        --platform=android-16
-
-  You may need to add ``--system=linux-x86_64`` to the above
-  command-line for x86_64 Linux host.
-
-* The dependent libraries must be installed under
-  ``$ANDROID_HOME/usr/local``.
-
-Before running ``android-config`` and ``android-make``,
-``$ANDROID_HOME`` environment variable must be set to point to the
-correct path.
-
-After ``android-config``, run ``android-make`` to compile sources.
+After ``android-config``, run ``make`` to compile sources.
 
 Building documentation
 ----------------------
 
-`Sphinx <http://sphinx.pocoo.org/>`_ is used to build the
+`Sphinx <http://sphinx-doc.org/>`_ is used to build the
 documentation. aria2 man pages will be build when you run ``make`` if
 they are not up-to-date.  You can also build HTML version of aria2 man
 page by ``make html``. The HTML version manual is also available at
-`online <http://aria2.sourceforge.net/manual/en/html/>`_ (`Russian
-translation <http://aria2.sourceforge.net/manual/ru/html/>`_,
-`Portuguese translation
-<http://aria2.sourceforge.net/manual/pt/html/>`_).
+`online <https://aria2.github.io/manual/en/html/>`_ (`Russian
+translation <https://aria2.github.io/manual/ru/html/>`_, `Portuguese
+translation <https://aria2.github.io/manual/pt/html/>`_).
 
 BitTorrent
 -----------
@@ -539,9 +533,8 @@ documentation to know how to use API.
 References
 ----------
 
-* `aria2 Online Manual <http://aria2.sourceforge.net/manual/en/html/>`_
-* http://aria2.sourceforge.net/
-* https://github.com/tatsuhiro-t/aria2
+* `aria2 Online Manual <https://aria2.github.io/manual/en/html/>`_
+* https://aria2.github.io/
 * `RFC 959 FILE TRANSFER PROTOCOL (FTP) <http://tools.ietf.org/html/rfc959>`_
 * `RFC 1738 Uniform Resource Locators (URL) <http://tools.ietf.org/html/rfc1738>`_
 * `RFC 2428 FTP Extensions for IPv6 and NATs <http://tools.ietf.org/html/rfc2428>`_
@@ -569,4 +562,4 @@ References
 * `BitTorrent: Private Torrents <http://www.bittorrent.org/beps/bep_0027.html>`_
 * `BitTorrent: BitTorrent DHT Extensions for IPv6 <http://www.bittorrent.org/beps/bep_0032.html>`_
 * `BitTorrent: Message Stream Encryption <http://wiki.vuze.com/w/Message_Stream_Encryption>`_
-* `Kademlia: A Peer-to-peer Information System Based on the  XOR Metric <http://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf>`_
+* `Kademlia: A Peer-to-peer Information System Based on the  XOR Metric <https://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf>`_
